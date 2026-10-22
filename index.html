@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#008c43">
+  <title>Evaluación de proyectos SENA</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --green: #008c43;
+      --green-dark: #006b35;
+      --green-soft: #e9f5ee;
+      --ink: #17231d;
+      --muted: #64716a;
+      --line: #e5ebe7;
+      --surface: #ffffff;
+      --background: #f4f7f5;
+      --warning: #9a5b00;
+      --warning-soft: #fff4df;
+      --danger: #a33030;
+      --danger-soft: #fff0ef;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--ink);
+    }
+
+    button, select { font: inherit; }
+
+    .topbar {
+      height: 6px;
+      background: linear-gradient(90deg, var(--green) 0 72%, #7bbd42 72% 100%);
+    }
+
+    .page {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 34px 0 52px;
+    }
+
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 19px;
+      min-width: 0;
+    }
+
+    .logo {
+      display: block;
+      width: 82px;
+      height: 82px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(25px, 4vw, 36px);
+      letter-spacing: -.04em;
+      line-height: 1.12;
+    }
+
+    .subtitle {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .updated {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: 0 6px 22px rgb(23 35 29 / 4%);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.25fr) minmax(220px, 1fr) auto;
+      align-items: end;
+      gap: 16px;
+      padding: 21px;
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: #39453e;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    select {
+      width: 100%;
+      min-height: 44px;
+      padding: 0 38px 0 13px;
+      border: 1px solid #d7e0da;
+      border-radius: 9px;
+      outline: none;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgb(0 140 67 / 12%);
+    }
+
+    select:disabled {
+      cursor: not-allowed;
+      background: #f3f5f4;
+      color: #8a948e;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 17px;
+      border: 1px solid var(--green);
+      border-radius: 9px;
+      background: var(--green);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s ease, transform .15s ease;
+    }
+
+    .button:hover:not(:disabled) {
+      background: var(--green-dark);
+      transform: translateY(-1px);
+    }
+
+    .button:disabled {
+      border-color: #d5ddd8;
+      background: #e9eeeb;
+      color: #89948d;
+      cursor: not-allowed;
+    }
+
+    .message {
+      display: none;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      border: 1px solid #f1d7a6;
+      border-radius: 11px;
+      background: var(--warning-soft);
+      color: #654100;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .message.visible { display: flex; }
+    .message.error { border-color: #efc4c0; background: var(--danger-soft); color: #7a2929; }
+    .message button { padding: 0; border: 0; background: none; color: inherit; font-weight: 750; text-decoration: underline; cursor: pointer; }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      min-height: 115px;
+      padding: 19px 20px;
+    }
+
+    .stat-label {
+      display: block;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .stat-value {
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      font-size: 27px;
+      font-weight: 750;
+      letter-spacing: -.04em;
+    }
+
+    .stat-note {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    .content { overflow: hidden; }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 19px 21px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: -.02em;
+    }
+
+    .result-count {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      padding: 12px 16px;
+      background: #fafcfb;
+      color: #69766f;
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 15px 16px;
+      border-top: 1px solid #edf1ee;
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    tbody tr:hover { background: #fbfdfb; }
+
+    .project-name { font-weight: 750; }
+    .student-name { min-width: 160px; max-width: 240px; line-height: 1.45; }
+    .evaluator { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+
+    .score {
+      font-variant-numeric: tabular-nums;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green-dark);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge.invalid { background: var(--danger-soft); color: var(--danger); }
+    .badge.pending { background: #f1f3f2; color: #606b64; }
+
+    details { margin-top: 9px; }
+    summary { color: var(--green-dark); font-size: 11px; font-weight: 650; cursor: pointer; }
+
+    .criteria {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px 18px;
+      min-width: 260px;
+      padding: 10px 0 2px;
+    }
+
+    .criterion {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: #546159;
+      font-size: 11px;
+    }
+
+    .criterion strong { color: var(--ink); }
+    .empty { padding: 54px 20px; color: var(--muted); text-align: center; }
+    .empty strong { display: block; margin-bottom: 6px; color: var(--ink); font-size: 14px; }
+    .footnote { padding: 14px 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+    @media (max-width: 760px) {
+      .page { width: min(100% - 28px, 600px); padding-top: 25px; }
+      .hero { align-items: flex-start; }
+      .logo { width: 62px; height: 62px; }
+      .brand { gap: 13px; }
+      .updated { display: none; }
+      .filters { grid-template-columns: 1fr; padding: 16px; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .stat { min-height: 100px; padding: 15px; }
+      .stat-value { font-size: 24px; }
+      .section-heading { padding: 16px; }
+      .table-wrap { overflow: visible; }
+      table, tbody, tr, td { display: block; width: 100%; }
+      thead { display: none; }
+      tbody { padding: 0 15px; }
+      tbody tr { padding: 14px 0; border-top: 1px solid var(--line); }
+      tbody tr:first-child { border-top: 0; }
+      td { padding: 5px 0; border: 0; }
+      td::before {
+        display: inline-block;
+        width: 105px;
+        color: var(--muted);
+        content: attr(data-label);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        vertical-align: top;
+      }
+      td:has(details)::before { display: none; }
+      .student-name { display: inline-block; }
+      .criteria { min-width: 0; }
+    }
+
+    @media (max-width: 420px) {
+      .logo { width: 53px; height: 53px; }
+      .eyebrow { font-size: 10px; }
+      h1 { font-size: 24px; }
+      .subtitle { font-size: 12px; }
+      .summary { gap: 8px; }
+      .stat { padding: 13px; }
+      .stat-label { font-size: 11px; }
+      .criteria { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar"></div>
+  <main class="page">
+    <header class="hero">
+      <div class="brand">
+        <img class="logo" src="./sena-logo.png" alt="Logo del SENA">
+        <div>
+          <p class="eyebrow">CDA SENA · Evaluación académica</p>
+          <h1>Evaluación de proyectos SENA</h1>
+          <p class="subtitle">Consulta las sustentaciones y verifica la ponderación de cada proyecto.</p>
+        </div>
+      </div>
+      <div class="updated"><span class="status-dot" aria-hidden="true"></span><span id="connection-status">Conectando con la hoja…</span></div>
+    </header>
+
+    <section class="panel filters" aria-label="Filtros de evaluación">
+      <div class="field">
+        <label for="school-filter">Institución educativa</label>
+        <select id="school-filter" disabled>
+          <option value="">Cargando instituciones…</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="program-filter">Programa / proyecto</label>
+        <select id="program-filter" disabled>
+          <option value="">Todos los proyectos</option>
+        </select>
+      </div>
+      <button class="button" id="download-button" type="button" disabled>
+        <span aria-hidden="true">↓</span> Descargar acta de sustentación
+      </button>
+    </section>
+
+    <div class="message" id="message" role="status" aria-live="polite"></div>
+
+    <section class="summary" aria-label="Resumen de evaluaciones">
+      <article class="panel stat">
+        <span class="stat-label">Evaluaciones</span>
+        <div class="stat-value" id="stat-evaluations">—</div>
+      </article>
+      <article class="panel stat">
+        <span class="stat-label">Ponderación promedio</span>
+        <div class="stat-value"><span id="stat-score">—</span><span class="stat-note">/ 100</span></div>
+      </article>
+      <article class="panel stat">
+        <span class="stat-label">Calificación promedio</span>
+        <div class="stat-value"><span id="stat-grade">—</span><span class="stat-note">/ 5</span></div>
+      </article>
+      <article class="panel stat">
+        <span class="stat-label">Ponderaciones válidas</span>
+        <div class="stat-value" id="stat-valid">—</div>
+      </article>
+    </section>
+
+    <section class="panel content">
+      <div class="section-heading">
+        <h2>Detalle de sustentaciones</h2>
+        <span class="result-count" id="result-count"></span>
+      </div>
+      <div class="table-wrap" id="table-wrap">
+        <div class="empty"><strong>Cargando evaluaciones…</strong>Se están consultando los datos de la hoja de cálculo.</div>
+      </div>
+      <div class="footnote">La ponderación se valida sumando los 10 criterios de evaluación y comparando el resultado con el total registrado en la hoja (máximo 100 puntos).</div>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const SHEET_ID = "1tZ2Tji3aEveOLUZBcOZYawaxbVk-a6_AcoD4pCa_XM8";
+    const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+    const CRITERIA = [
+      ["Idea de negocio", "Idea de negocio"],
+      ["Contenido del proyecto empresarial", "Contenido del proyecto"],
+      ["Calidad en la información", "Calidad en la información"],
+      ["Dominio del tema", "Dominio del tema"],
+      ["Ortografía y gramática", "Ortografía y gramática"],
+      ["Oratoria", "Oratoria"],
+      ["Demostración unidad productiva (PMV)", "Demostración unidad productiva"],
+      ["Sustentación", "Sustentación"],
+      ["Calidad de las diapositivas", "Calidad de las diapositivas"],
+      ["Manejo del tiempo", "Manejo del tiempo"]
+    ];
+    const HEADER_ALIASES = {
+      "Aprendiz/Evaluador": ["Aprendiz/Evaluador", "Aprendiz", "Evaluador"],
+      "Calificación (1-5)": ["Calificación (1-5)", "Calificación"],
+      "Total (100)": ["Total (100)", "Total"],
+      "Colegio": ["Colegio", "Institución", "Institucion", "Institución educativa"]
+    };
+
+    let evaluations = [];
+    let headers = [];
+    let evaluatorDisplayNames = new Map();
+    const schoolFilter = document.getElementById("school-filter");
+    const programFilter = document.getElementById("program-filter");
+    const downloadButton = document.getElementById("download-button");
+    const message = document.getElementById("message");
+
+    function normalize(value) {
+      return String(value ?? "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    function collegeKey(value) {
+      return normalize(value).replace(/^i\.?\s*e\.?\s*/, "").replace(/\s+/g, " ");
+    }
+
+    function findColumn(row, name) {
+      const aliases = HEADER_ALIASES[name] || [name];
+      const headerIndex = headers.findIndex((header) => aliases.some((alias) => normalize(header) === normalize(alias)));
+      return headerIndex < 0 ? "" : (row[headerIndex] ?? "").trim();
+    }
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let field = "";
+      let quoted = false;
+
+      for (let i = 0; i < text.length; i += 1) {
+        const char = text[i];
+        if (quoted) {
+          if (char === '"' && text[i + 1] === '"') {
+            field += '"';
+            i += 1;
+          } else if (char === '"') {
+            quoted = false;
+          } else {
+            field += char;
+          }
+        } else if (char === '"') {
+          quoted = true;
+        } else if (char === ",") {
+          row.push(field);
+          field = "";
+        } else if (char === "\n" || char === "\r") {
+          if (char === "\r" && text[i + 1] === "\n") i += 1;
+          row.push(field);
+          if (row.some((value) => value.trim() !== "")) rows.push(row);
+          row = [];
+          field = "";
+        } else {
+          field += char;
+        }
+      }
+
+      if (field !== "" || row.length > 0) {
+        row.push(field);
+        if (row.some((value) => value.trim() !== "")) rows.push(row);
+      }
+      return rows;
+    }
+
+    function numberValue(value) {
+      const cleaned = String(value ?? "").trim().replace(/\s/g, "").replace(",", ".");
+      if (cleaned === "") return null;
+      const parsed = Number(cleaned);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[character]);
+    }
+
+    function formatNumber(value, digits = 2) {
+      return new Intl.NumberFormat("es-CO", { minimumFractionDigits: 0, maximumFractionDigits: digits }).format(value);
+    }
+
+    function formatPersonName(value) {
+      const name = String(value ?? "").trim();
+      const canonical = evaluatorDisplayNames.get(normalize(name)) || name;
+      const normalizedParts = normalize(canonical).split(/[\s-]+/).filter(Boolean);
+      if (normalizedParts[0] === "sandra" && normalizedParts.includes("gonzalez")) {
+        return "Sandra González Moreno";
+      }
+      return canonical.toLocaleLowerCase("es").replace(/(^|[\s-])([a-záéíóúüñ])/gi, (match, separator, letter) =>
+        separator + letter.toLocaleUpperCase("es")
+      );
+    }
+
+    function canonicalizeEvaluatorNames(rows) {
+      const names = [...new Set(rows
+        .map((evaluation) => evaluation.evaluator.trim())
+        .filter((name) => name && name !== "No registrado"))];
+      const parents = names.map((_, index) => index);
+      const find = (index) => {
+        if (parents[index] !== index) parents[index] = find(parents[index]);
+        return parents[index];
+      };
+      const union = (left, right) => {
+        const leftRoot = find(left);
+        const rightRoot = find(right);
+        if (leftRoot !== rightRoot) parents[rightRoot] = leftRoot;
+      };
+      const tokens = names.map((name) => normalize(name).split(/[\s-]+/).filter(Boolean));
+
+      for (let left = 0; left < names.length; left += 1) {
+        for (let right = left + 1; right < names.length; right += 1) {
+          const sameGivenName = tokens[left][0] && tokens[left][0] === tokens[right][0];
+          const sharedSurname = tokens[left].slice(1).some((token) => tokens[right].slice(1).includes(token));
+          if (sameGivenName && sharedSurname) union(left, right);
+        }
+      }
+
+      const groups = new Map();
+      names.forEach((name, index) => {
+        const root = find(index);
+        if (!groups.has(root)) groups.set(root, []);
+        groups.get(root).push(name);
+      });
+
+      evaluatorDisplayNames = new Map();
+      groups.forEach((group) => {
+        const canonicalName = group.reduce((best, candidate) => {
+          const bestLength = normalize(best).split(/[\s-]+/).filter(Boolean).length;
+          const candidateLength = normalize(candidate).split(/[\s-]+/).filter(Boolean).length;
+          const bestAccents = (best.match(/[áéíóúüñ]/gi) || []).length;
+          const candidateAccents = (candidate.match(/[áéíóúüñ]/gi) || []).length;
+          return candidateLength > bestLength || (candidateLength === bestLength && candidateAccents > bestAccents)
+            ? candidate
+            : best;
+        });
+        group.forEach((name) => evaluatorDisplayNames.set(normalize(name), canonicalName));
+      });
+    }
+
+    function makeEvaluation(row) {
+      const criteria = CRITERIA.map(([key, label]) => ({
+        label,
+        value: numberValue(findColumn(row, key))
+      }));
+      const criteriaTotal = criteria.reduce((sum, criterion) => sum + (criterion.value ?? 0), 0);
+      const recordedTotal = numberValue(findColumn(row, "Total (100)"));
+      const grade = numberValue(findColumn(row, "Calificación (1-5)"));
+      const missingCriteria = criteria.some((criterion) => criterion.value === null);
+
+      return {
+        date: findColumn(row, "Fecha"),
+        project: findColumn(row, "Proyecto") || "Proyecto sin nombre",
+        evaluator: findColumn(row, "Aprendiz/Evaluador") || "No registrado",
+        college: findColumn(row, "Colegio") || "Institución sin nombre",
+        observations: findColumn(row, "Observaciones"),
+        rating: findColumn(row, "Valoración") || "Sin valoración",
+        criteria,
+        criteriaTotal,
+        recordedTotal,
+        grade,
+        valid: !missingCriteria && recordedTotal !== null && Math.abs(criteriaTotal - recordedTotal) < 0.01
+      };
+    }
+
+    function showMessage(text, isError = false) {
+      message.replaceChildren();
+      const span = document.createElement("span");
+      span.textContent = text;
+      message.append(span);
+      if (isError) message.classList.add("error");
+      else message.classList.remove("error");
+      message.classList.add("visible");
+    }
+
+    function hideMessage() {
+      message.classList.remove("visible", "error");
+      message.replaceChildren();
+    }
+
+    function updateFilters() {
+      const selectedCollege = schoolFilter.value;
+      const availableProjects = [...new Set(
+        evaluations
+          .filter((evaluation) => !selectedCollege || evaluation.college === selectedCollege)
+          .map((evaluation) => evaluation.project)
+      )].sort((a, b) => a.localeCompare(b, "es"));
+      const previousProject = programFilter.value;
+      programFilter.replaceChildren(new Option("Todos los proyectos", ""));
+      availableProjects.forEach((project) => programFilter.add(new Option(project, project)));
+      programFilter.disabled = false;
+      programFilter.value = availableProjects.includes(previousProject) ? previousProject : "";
+      render();
+    }
+
+    function filteredEvaluations() {
+      return evaluations.filter((evaluation) =>
+        (!schoolFilter.value || evaluation.college === schoolFilter.value) &&
+        (!programFilter.value || evaluation.project === programFilter.value)
+      );
+    }
+
+    function criteriaMarkup(criteria) {
+      return `<div class="criteria">${criteria.map((criterion) =>
+        `<div class="criterion"><span>${escapeHTML(criterion.label)}</span><strong>${criterion.value === null ? "—" : formatNumber(criterion.value)}</strong></div>`
+      ).join("")}</div>`;
+    }
+
+    function render() {
+      const rows = filteredEvaluations();
+      const completeGrades = rows.filter((evaluation) => evaluation.grade !== null);
+      const completeScores = rows.filter((evaluation) => evaluation.recordedTotal !== null);
+      const validCount = rows.filter((evaluation) => evaluation.valid).length;
+
+      document.getElementById("stat-evaluations").textContent = formatNumber(rows.length, 0);
+      document.getElementById("stat-score").textContent = completeScores.length
+        ? formatNumber(completeScores.reduce((sum, evaluation) => sum + evaluation.recordedTotal, 0) / completeScores.length)
+        : "—";
+      document.getElementById("stat-grade").textContent = completeGrades.length
+        ? formatNumber(completeGrades.reduce((sum, evaluation) => sum + evaluation.grade, 0) / completeGrades.length)
+        : "—";
+      document.getElementById("stat-valid").textContent = rows.length
+        ? `${validCount} / ${rows.length}`
+        : "—";
+      document.getElementById("result-count").textContent = `${rows.length} ${rows.length === 1 ? "resultado" : "resultados"}`;
+      downloadButton.disabled = !schoolFilter.value || rows.length === 0;
+
+      const tableWrap = document.getElementById("table-wrap");
+      if (!rows.length) {
+        tableWrap.innerHTML = `<div class="empty"><strong>Sin evaluaciones para mostrar</strong>Prueba con otra institución o proyecto.</div>`;
+        return;
+      }
+
+      tableWrap.innerHTML = `
+        <table>
+          <thead><tr>
+            <th>Proyecto / programa</th><th>Evaluador</th><th>Fecha</th><th>Ponderación</th><th>Nota</th><th>Valoración</th>
+          </tr></thead>
+          <tbody>${rows.map((evaluation) => `
+            <tr>
+              <td data-label="Proyecto"><span class="project-name">${escapeHTML(evaluation.project)}</span>
+                <details><summary>Ver criterios de evaluación</summary>${criteriaMarkup(evaluation.criteria)}</details>
+              </td>
+              <td data-label="Evaluador"><span class="student-name">${escapeHTML(formatPersonName(evaluation.evaluator))}</span></td>
+              <td data-label="Fecha">${escapeHTML(evaluation.date || "—")}</td>
+              <td data-label="Ponderación"><span class="score">${evaluation.recordedTotal === null ? "—" : `${formatNumber(evaluation.recordedTotal)} / 100`}</span>
+                <span class="evaluator">${evaluation.valid ? "Suma de criterios: " + formatNumber(evaluation.criteriaTotal) : evaluation.recordedTotal === null ? "Total no registrado" : "Suma de criterios: " + formatNumber(evaluation.criteriaTotal)}</span>
+              </td>
+              <td data-label="Nota"><span class="score">${evaluation.grade === null ? "—" : `${formatNumber(evaluation.grade)} / 5`}</span></td>
+              <td data-label="Validación">${evaluation.valid
+                ? `<span class="badge">✓ Ponderación válida</span>`
+                : `<span class="badge invalid">! Revisar ponderación</span>`}
+                <span class="evaluator">${escapeHTML(evaluation.rating)}</span>
+                ${evaluation.observations ? `<details><summary>Observaciones</summary><p>${escapeHTML(evaluation.observations)}</p></details>` : ""}
+              </td>
+            </tr>`).join("")}</tbody>
+        </table>`;
+    }
+
+    async function loadEvaluations() {
+      const connectionStatus = document.getElementById("connection-status");
+      schoolFilter.disabled = true;
+      connectionStatus.textContent = "Conectando con la hoja…";
+      showMessage("Cargando datos actualizados desde Google Sheets…");
+      try {
+        const response = await fetch(CSV_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error(`Google Sheets respondió con estado ${response.status}.`);
+        const csv = (await response.text()).replace(/^\uFEFF/, "");
+        const rows = parseCSV(csv);
+        if (rows.length < 2) throw new Error("La hoja no contiene evaluaciones para mostrar.");
+        headers = rows[0].map((header) => header.trim());
+        const requiredHeaders = ["Proyecto", "Total (100)", "Colegio"];
+        const missingHeaders = requiredHeaders.filter((header) =>
+          !headers.some((actual) => (HEADER_ALIASES[header] || [header]).some((alias) => normalize(actual) === normalize(alias)))
+        );
+        if (missingHeaders.length) throw new Error(`No se encontraron columnas necesarias en la hoja: ${missingHeaders.join(", ")}.`);
+
+        evaluations = rows.slice(1).map(makeEvaluation).filter((evaluation) => evaluation.college !== "Institución sin nombre");
+        if (!evaluations.length) throw new Error("No se encontraron filas con una institución educativa registrada.");
+
+        const collegeNames = new Map();
+        evaluations.forEach((evaluation) => {
+          const key = collegeKey(evaluation.college);
+          if (!collegeNames.has(key)) collegeNames.set(key, evaluation.college);
+          evaluation.college = collegeNames.get(key);
+        });
+        const projectNames = new Map();
+        evaluations.forEach((evaluation) => {
+          const key = normalize(evaluation.project).replace(/\s+/g, " ");
+          const previous = projectNames.get(key);
+          const candidateIsUppercase = evaluation.project === evaluation.project.toLocaleUpperCase("es");
+          const previousIsUppercase = previous === previous?.toLocaleUpperCase("es");
+          if (!previous || (candidateIsUppercase && !previousIsUppercase)) projectNames.set(key, evaluation.project);
+        });
+        evaluations.forEach((evaluation) => {
+          evaluation.project = projectNames.get(normalize(evaluation.project).replace(/\s+/g, " "));
+        });
+        canonicalizeEvaluatorNames(evaluations);
+        const colleges = [...new Set(evaluations.map((evaluation) => evaluation.college))]
+          .sort((a, b) => a.localeCompare(b, "es"));
+        schoolFilter.replaceChildren(new Option("Todas las instituciones", ""));
+        colleges.forEach((college) => schoolFilter.add(new Option(college, college)));
+        schoolFilter.disabled = false;
+        connectionStatus.textContent = "Datos actualizados";
+        hideMessage();
+        updateFilters();
+      } catch (error) {
+        console.error("No fue posible cargar las evaluaciones:", error);
+        connectionStatus.textContent = "Error de conexión";
+        showMessage(`No se pudo leer la hoja de cálculo. ${error.message} Verifica que el documento tenga acceso de lectura para cualquier persona con el enlace y vuelve a intentarlo.`, true);
+        const retry = document.createElement("button");
+        retry.type = "button";
+        retry.textContent = "Reintentar";
+        retry.addEventListener("click", loadEvaluations);
+        message.append(" ", retry);
+        document.getElementById("table-wrap").innerHTML = `<div class="empty"><strong>No se pudieron cargar las evaluaciones</strong>Revisa tu conexión y los permisos de lectura del documento.</div>`;
+      }
+    }
+
+    function buildReport(rows, college, project, logoData) {
+      const reportTitle = `Acta de sustentación - ${college} - CDA SENA`;
+      const generatedAt = new Intl.DateTimeFormat("es-CO", { dateStyle: "long", timeStyle: "short" }).format(new Date());
+      const allHaveGrades = rows.filter((evaluation) => evaluation.grade !== null);
+      const averageGrade = allHaveGrades.length
+        ? formatNumber(allHaveGrades.reduce((sum, evaluation) => sum + evaluation.grade, 0) / allHaveGrades.length)
+        : "No disponible";
+      const reportDate = new Intl.DateTimeFormat("es-CO", { dateStyle: "long" }).format(new Date());
+      const programs = [...new Set(rows.map((evaluation) => evaluation.project))];
+      const programsText = programs.map(escapeHTML).join(", ");
+      const evaluators = new Map();
+      rows.forEach((evaluation) => {
+        const evaluator = evaluation.evaluator;
+        const displayName = formatPersonName(evaluator);
+        const evaluatorKey = normalize(displayName);
+        if (evaluator && evaluator !== "No registrado" && !evaluators.has(evaluatorKey)) {
+          evaluators.set(evaluatorKey, displayName);
+        }
+      });
+      const evaluatorSignatures = [...evaluators.values()].map((evaluator) =>
+        `<div class="signature"><strong>${escapeHTML(evaluator)}</strong><br>Evaluador(a)</div>`
+      ).join("");
+
+      const evaluationSections = rows.map((evaluation, index) => `
+        <section class="evaluation">
+          <h2>${index + 1}. ${escapeHTML(evaluation.project)}</h2>
+          <p><strong>Evaluador(a):</strong> ${escapeHTML(formatPersonName(evaluation.evaluator))} &nbsp; <strong>Fecha:</strong> ${escapeHTML(evaluation.date || "No registrada")}</p>
+          <p><strong>Ponderación registrada:</strong> ${evaluation.recordedTotal === null ? "No registrada" : `${formatNumber(evaluation.recordedTotal)} / 100`}
+            &nbsp; <strong>Nota:</strong> ${evaluation.grade === null ? "No registrada" : `${formatNumber(evaluation.grade)} / 5`}
+            &nbsp; <strong>Validación:</strong> ${evaluation.valid ? "Ponderación válida" : "Revisar ponderación"}</p>
+          <p><strong>Valoración:</strong> ${escapeHTML(evaluation.rating)}</p>
+          <table><thead><tr><th>Criterio</th><th>Puntaje</th></tr></thead><tbody>
+            ${evaluation.criteria.map((criterion) => `<tr><td>${escapeHTML(criterion.label)}</td><td>${criterion.value === null ? "No registrado" : formatNumber(criterion.value)}</td></tr>`).join("")}
+            <tr><th>Suma de criterios</th><th>${formatNumber(evaluation.criteriaTotal)} / 100</th></tr>
+          </tbody></table>
+          ${evaluation.observations ? `<p><strong>Observaciones:</strong> ${escapeHTML(evaluation.observations)}</p>` : ""}
+        </section>`).join("");
+
+      return `<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${escapeHTML(reportTitle)}</title>
+<style>
+  body{max-width:900px;margin:40px auto;padding:26px;color:#17231d;font:14px/1.55 Arial,sans-serif;border:3px solid #008c43}
+  header{display:flex;align-items:center;gap:18px;padding-bottom:18px;border-bottom:3px solid #008c43}
+  header img{width:72px;height:72px;object-fit:contain}h1{margin:0;color:#006b35;font-size:25px}
+  .meta{color:#59665f}.intro{margin:22px 0;line-height:1.7}.overview{margin:24px 0;padding:16px;background:#eff7f1;border-radius:8px}
+  .evaluation{padding:18px 0;border-top:1px solid #dce5df;break-inside:avoid}
+  h2{margin:0 0 8px;color:#006b35;font-size:18px}p{margin:8px 0}
+  table{width:100%;border-collapse:collapse;margin:12px 0}th,td{padding:7px 9px;border:1px solid #dce5df;text-align:left}
+  th{background:#f3f7f4}td:last-child,th:last-child{text-align:right}
+  .signatures{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:70px 36px;margin:70px 0 20px}
+  .signature{min-height:36px;padding-top:8px;border-top:1px solid #526058;text-align:center}
+  .print{position:fixed;right:20px;top:20px;padding:10px 16px;border:0;border-radius:7px;background:#008c43;color:white;font-weight:bold;cursor:pointer}
+  @media(max-width:600px){body{margin:12px;padding:16px}.signatures{gap:50px 18px}}
+  @media print{body{margin:0;padding:10mm;border:3px solid #008c43;max-width:none}.print{display:none}.evaluation{break-inside:avoid}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<button class="print" onclick="window.print()">Imprimir / Guardar como PDF</button>
+<header><img src="${escapeHTML(logoData)}" alt="Logo SENA"><div><p class="meta">CDA SENA · Acta de sustentación</p><h1>${escapeHTML(reportTitle)}</h1></div></header>
+<p class="intro">El día de hoy, ${escapeHTML(reportDate)}, se presenta la jornada de sustentaciones de proyectos de la IE ${escapeHTML(college)}, con los siguientes grupos de los programas: <strong>${programsText}</strong>. A continuación, se registran las evaluaciones, ponderaciones y observaciones correspondientes a cada sustentación.</p>
+<div class="overview"><strong>Institución:</strong> ${escapeHTML(college)}<br>
+<strong>Programa / proyecto:</strong> ${escapeHTML(project || "Todos los proyectos")}<br>
+<strong>Fecha de generación:</strong> ${escapeHTML(generatedAt)}<br>
+<strong>Evaluaciones incluidas:</strong> ${rows.length}<br>
+<strong>Calificación promedio:</strong> ${averageGrade} / 5<br>
+<strong>Ponderaciones válidas:</strong> ${rows.filter((evaluation) => evaluation.valid).length} de ${rows.length}</div>
+${evaluationSections}
+<div class="signatures">${evaluatorSignatures}<div class="signature">Representante de la institución educativa</div><div class="signature">Representante CDA SENA</div></div>
+<p class="meta">Documento generado desde el registro de evaluaciones de proyectos SENA.</p>
+</bo${"dy"}></html>`;
+    }
+
+    function downloadReport() {
+      const rows = filteredEvaluations();
+      const college = schoolFilter.value;
+      if (!college || !rows.length) return;
+      const logo = document.querySelector(".logo");
+      const canvas = document.createElement("canvas");
+      canvas.width = logo.naturalWidth;
+      canvas.height = logo.naturalHeight;
+      canvas.getContext("2d").drawImage(logo, 0, 0);
+      const report = buildReport(rows, college, programFilter.value, canvas.toDataURL("image/png"));
+      const blob = new Blob([report], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const slug = college.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      link.href = url;
+      link.download = `acta-sustentacion-${slug}-cda-sena.html`;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    schoolFilter.addEventListener("change", updateFilters);
+    programFilter.addEventListener("change", render);
+    downloadButton.addEventListener("click", downloadReport);
+    loadEvaluations();
+  </script>
+</body>
+</html>
